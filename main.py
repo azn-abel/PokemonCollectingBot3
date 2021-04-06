@@ -30,7 +30,7 @@ async def register(ctx):
     # fileObject.close()
     pickle_string = pickle.dumps(x)
     cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (str(author_id), pickle_string,))
-    cur.commit()
+    conn.commit()
 
     await ctx.reply("You are now registered to collect!")
     '''
@@ -48,10 +48,8 @@ async def get(ctx, arg):
 
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
         retrieved_pickle = cur.fetchone()[1]
-        await ctx.send(retrieved_pickle.unique_list)
-        await ctx.send(retrieved_pickle.unique_list.count())
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
@@ -66,10 +64,12 @@ async def get(ctx, arg):
         # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
         # pickle.dump(instance, fileObject)
         # fileObject.close()
+
+        print(len(collector.unique_list))
         pickle_string = pickle.dumps(collector)
 
-        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(instance.id)))
-        cur.commit()
+        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+        conn.commit()
         await ctx.reply(f"You have acquired {poke.capitalize()}!")
         return
     else:
@@ -263,11 +263,9 @@ async def stats(ctx):
     author = str(ctx.message.author)
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
         retrieved_pickle = cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
-        await ctx.send(str(retrieved_pickle))
-        await ctx.send(str(collector.unique_list.count()))
     except:
         await ctx.reply("You are not a registered collector!")
         return
