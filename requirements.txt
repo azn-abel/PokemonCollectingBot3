@@ -1,2 +1,4 @@
 discord.py
 pandas
+psycopg2
+psycopg2.extras
