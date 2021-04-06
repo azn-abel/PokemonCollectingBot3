@@ -50,6 +50,8 @@ async def get(ctx, arg):
         # collector = Collector.instances_dict[ctx.message.author.id]
         cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
         retrieved_pickle = cur.fetchone()[1]
+        await ctx.send(retrieved_pickle.unique_list)
+        await ctx.send(retrieved_pickle.unique_list.count())
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
@@ -264,6 +266,8 @@ async def stats(ctx):
         cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
         retrieved_pickle = cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
+        await ctx.send(str(retrieved_pickle))
+        await ctx.send(str(collector.unique_list.count()))
     except:
         await ctx.reply("You are not a registered collector!")
         return
