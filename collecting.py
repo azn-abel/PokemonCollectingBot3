@@ -24,5 +24,5 @@ class Channel:
         self.server = server
         self.drops_enabled = True
         self.drop_active = False
-        print(self.__class__.instances)
-        print(self.__class__.instance_dict)
+        # print(self.__class__.instances)
+        # print(self.__class__.instance_dict)

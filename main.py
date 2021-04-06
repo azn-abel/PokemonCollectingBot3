@@ -8,23 +8,30 @@ import pandas as pd
 
 from collecting import Collector, Channel
 import pokemon
+from database_management import *
 
 TOKEN = 'ODI0MDIwMzY4MjA1MTUyMjY2.YFpSxQ.if6CF7cGJYifIXkW8lWppE03Zi0'
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
 client = commands.Bot(command_prefix=['p!', 'P!'], intents=intents)
 
-special_privileges = [229248090786365443, 324362342026444800]
+special_privileges = [229248090786365443]
 
-@client.command()
+
+@client.command()  # FIXED FOR SQL
 async def register(ctx):
+    author_id = ctx.message.author.id
     for x in Collector.instances:
-        if ctx.message.author.id == x.id:
+        if author_id == x.id:
             await ctx.reply("You are already registered to collect!")
             return
-    x = Collector(ctx.message.author.id)
-    fileObject = open(f'Collector Data/{x.id}.pickle', 'wb')
-    pickle.dump(x, fileObject)
-    fileObject.close()
+    x = Collector(author_id)
+    # fileObject = open(f'Collector Data/{x.id}.pickle', 'wb')
+    # pickle.dump(x, fileObject)
+    # fileObject.close()
+    pickle_string = pickle.dumps(x)
+    cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (str(author_id), pickle_string,))
+    cur.commit()
+
     await ctx.reply("You are now registered to collect!")
     '''
     y = pickle.load(open(f'Collector Data/{x.id}.pickle', 'rb'))
@@ -33,7 +40,7 @@ async def register(ctx):
     '''
 
 
-@client.command()
+@client.command()  # FIXED FOR SQL, NEEDS TESTING
 async def get(ctx, arg):
     if ctx.message.author.id not in special_privileges:
         await ctx.reply("You dumbass.")
@@ -46,9 +53,13 @@ async def get(ctx, arg):
                 instance.unique_list.append(poke) if str(
                     poke) not in instance.unique_list else instance.dupe_list.append(poke)
 
-                fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
-                pickle.dump(instance, fileObject)
-                fileObject.close()
+                # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
+                # pickle.dump(instance, fileObject)
+                # fileObject.close()
+                pickle_string = pickle.dumps(instance)
+
+                cur.execute("UPDATE collectors SET instance = %s WHERE id is %s", (pickle_string, str(instance.id)))
+                cur.commit()
                 await ctx.reply(f"You have acquired {poke.capitalize()}!")
                 return
     else:
@@ -262,13 +273,13 @@ async def stats(ctx):
             if f"{pokemon.data.loc[pokemon.data['Name'] == poke, 'Type1'].iloc[0]}" == type:
                 pokecount += 1
 
-        embed.add_field(name=type, value=f"{pokecount}/{pokemon.counts[type]}", inline=False if counter % 3 == 0 and counter != 0 else True)
+        embed.add_field(name=type, value=f"{pokecount}/{pokemon.counts[type]}",
+                        inline=False if counter % 3 == 0 and counter != 0 else True)
 
-    embed.add_field(name="Total:", value= f"**{len(collector.unique_list)}/{len(pokemon.all_pokemon)}**")
-
-
+    embed.add_field(name="Total:", value=f"**{len(collector.unique_list)}/{len(pokemon.all_pokemon)}**")
 
     await ctx.send(embed=embed)
+
 
 '''
 @client.command()
@@ -291,10 +302,10 @@ async def drop(ctx):
     await ctx.send(file=temp_file, embed=embed)
 '''
 
-
 '''
 ---------------- FOR DROPS -----------------
 '''
+
 
 @client.command()
 async def activate(ctx):
