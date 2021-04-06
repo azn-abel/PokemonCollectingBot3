@@ -255,7 +255,8 @@ async def stats(ctx):
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
         cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
-        collector = cur.fetchone()[1]
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
         return
