@@ -45,27 +45,34 @@ async def get(ctx, arg):
     if ctx.message.author.id not in special_privileges:
         await ctx.reply("You dumbass.")
         return
+
+    try:
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not a registered collector!")
+        return
+
     poke = arg.lower()
     if poke in pokemon.all_pokemon:
-        for instance in Collector.instances:
-            if ctx.message.author.id == instance.id:
-                instance.pokemon_list.append(poke)
-                instance.unique_list.append(poke) if str(
-                    poke) not in instance.unique_list else instance.dupe_list.append(poke)
+        collector.pokemon_list.append(poke)
+        collector.unique_list.append(poke) if str(
+            poke) not in collector.unique_list else collector.dupe_list.append(poke)
 
-                # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
-                # pickle.dump(instance, fileObject)
-                # fileObject.close()
-                pickle_string = pickle.dumps(instance)
+        # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
+        # pickle.dump(instance, fileObject)
+        # fileObject.close()
+        pickle_string = pickle.dumps(collector)
 
-                cur.execute("UPDATE collectors SET instance = %s WHERE id is %s", (pickle_string, str(instance.id)))
-                cur.commit()
-                await ctx.reply(f"You have acquired {poke.capitalize()}!")
-                return
+        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(instance.id)))
+        cur.commit()
+        await ctx.reply(f"You have acquired {poke.capitalize()}!")
+        return
     else:
         await ctx.reply("That is not a valid Pokemon!")
         return
-    await ctx.reply("You are not registered to collect!")
 
 
 '''
