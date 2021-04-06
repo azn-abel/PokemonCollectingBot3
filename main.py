@@ -253,7 +253,9 @@ async def view(ctx, pokemon):
 async def stats(ctx):
     author = str(ctx.message.author)
     try:
-        collector = Collector.instances_dict[ctx.message.author.id]
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (ctx.message.author.id,))
+        collector = cur.fetchone()[1]
     except:
         await ctx.reply("You are not a registered collector!")
         return

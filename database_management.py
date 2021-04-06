@@ -7,6 +7,7 @@ import os
 import pickle
 
 import psycopg2
+import psycopg2.extras
 
 from collecting import Collector
 
@@ -27,8 +28,8 @@ cur = conn.cursor()
 
 # cur.execute("DELETE FROM Collectors WHERE id is NULL")
 
-# cur.execute("SELECT * FROM collectors")
-
+# cur.execute("SELECT * FROM collectors WHERE id = %s", (str(229248090786365443),))
+# print(cur.fetchone()[1])
 
 # for person in Collector.instances:
 #     pickle_string = pickle.dumps(person)
