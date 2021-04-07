@@ -95,7 +95,10 @@ async def _collection(ctx, *args):
 
     collector_id = ctx.message.author.id
     try:
-        collector = Collector.instances_dict[collector_id]
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
         return
@@ -139,7 +142,10 @@ async def dupes(ctx, *args):
 
     collector_id = ctx.message.author.id
     try:
-        collector = Collector.instances_dict[collector_id]
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
         return
@@ -180,34 +186,40 @@ async def unique(ctx, *args):
         title=f"{str(ctx.author)[:-5]}'s Unique Pokemon:"
     )
     collection_embed.set_thumbnail(url=pfp)
-    collection_embed.set_footer(text="Viewing page x of xx.")
-    for instance in Collector.instances:
-        if ctx.message.author.id == instance.id:
-            # await ctx.send(str(instance.pokemon_list))
-            for poke in instance.unique_list:
-                output_list.append(poke.capitalize())
-                output_list.sort()
-            total_page_nums = pokemon.getPageNums(output_list)
+    collector_id = ctx.message.author.id
+    try:
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not registered to collect!")
+        return
 
-            if not args:
-                page_num = 1
-            else:
-                if int(args[0]) > total_page_nums or int(args[0]) < 1:
-                    page_num = 1
-                else:
-                    page_num = args[0]
+    for poke in collector.unique_list:
+        output_list.append(poke.capitalize())
+        output_list.sort()
 
-            indices = pokemon.getIndices(total_page_nums, page_num)
+    total_page_nums = pokemon.getPageNums(output_list)
 
-            collection_embed.set_footer(text=f"Viewing page {page_num} of {total_page_nums}.")
+    if not args:
+        page_num = 1
+    else:
+        if int(args[0]) > total_page_nums or int(args[0]) < 1:
+            page_num = 1
+        else:
+            page_num = args[0]
 
-            for output in output_list[indices[0]:indices[1]]:
-                output_string += f"- {output}\n"
-            collection_embed.add_field(name="Pokemon:",
-                                       value=output_string if output_string != "" else "You don't have any Pokemon!")
-            await ctx.send(embed=collection_embed)
-            return
-    await ctx.send("You are not registered to collect!")
+    indices = pokemon.getIndices(total_page_nums, page_num)
+
+    collection_embed.set_footer(text=f"Viewing page {page_num} of {total_page_nums}.")
+
+    for output in output_list[indices[0]:indices[1]]:
+        output_string += f"- {output}\n"
+    collection_embed.add_field(name="Pokemon:",
+                               value=output_string if output_string != "" else "You don't have any Pokemon!")
+    await ctx.send(embed=collection_embed)
+    return
 
 
 @client.command()
