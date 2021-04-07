@@ -386,23 +386,36 @@ async def redeem(ctx, arg):
     channel_id = ctx.channel.id
     drop_channel = Channel.instance_dict[channel_id]
     poke = drop_channel.drop_pokemon.lower()
-    if drop_channel.drop_active and arg.lower() == poke:
-        for instance in Collector.instances:
-            if instance.id == ctx.message.author.id:
-                instance.pokemon_list.append(poke)
-                instance.unique_list.append(poke) if str(
-                    poke) not in instance.unique_list else instance.dupe_list.append(poke)
 
-                fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
-                pickle.dump(instance, fileObject)
-                fileObject.close()
-                drop_channel.drop_active = False
-                drop_channel.drop_pokemon = None
-                await ctx.reply(f"Redeemed {poke.capitalize()}!")
-                return
+    try:
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not a registered collector!")
+        return
+
+    if drop_channel.drop_active and arg.lower() == poke:
+        collector.pokemon_list.append(poke)
+        collector.unique_list.append(poke) if str(
+            poke) not in collector.unique_list else collector.dupe_list.append(poke)
+
+        # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
+        # pickle.dump(instance, fileObject)
+        # fileObject.close()
+
+        pickle_string = pickle.dumps(collector)
+
+        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+        conn.commit()
+
+        drop_channel.drop_active = False
+        drop_channel.drop_pokemon = None
+        await ctx.reply(f"Redeemed {poke.capitalize()}!")
+        return
     else:
         return
-    await ctx.reply("You are not registered to collect!")
 
 
 @client.command()
