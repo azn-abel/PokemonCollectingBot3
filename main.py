@@ -95,7 +95,10 @@ async def _collection(ctx, *args):
 
     collector_id = ctx.message.author.id
     try:
-        collector = Collector.instances_dict[collector_id]
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
         return
@@ -139,7 +142,10 @@ async def dupes(ctx, *args):
 
     collector_id = ctx.message.author.id
     try:
-        collector = Collector.instances_dict[collector_id]
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
         return
@@ -180,34 +186,40 @@ async def unique(ctx, *args):
         title=f"{str(ctx.author)[:-5]}'s Unique Pokemon:"
     )
     collection_embed.set_thumbnail(url=pfp)
-    collection_embed.set_footer(text="Viewing page x of xx.")
-    for instance in Collector.instances:
-        if ctx.message.author.id == instance.id:
-            # await ctx.send(str(instance.pokemon_list))
-            for poke in instance.unique_list:
-                output_list.append(poke.capitalize())
-                output_list.sort()
-            total_page_nums = pokemon.getPageNums(output_list)
+    collector_id = ctx.message.author.id
+    try:
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not registered to collect!")
+        return
 
-            if not args:
-                page_num = 1
-            else:
-                if int(args[0]) > total_page_nums or int(args[0]) < 1:
-                    page_num = 1
-                else:
-                    page_num = args[0]
+    for poke in collector.unique_list:
+        output_list.append(poke.capitalize())
+        output_list.sort()
 
-            indices = pokemon.getIndices(total_page_nums, page_num)
+    total_page_nums = pokemon.getPageNums(output_list)
 
-            collection_embed.set_footer(text=f"Viewing page {page_num} of {total_page_nums}.")
+    if not args:
+        page_num = 1
+    else:
+        if int(args[0]) > total_page_nums or int(args[0]) < 1:
+            page_num = 1
+        else:
+            page_num = args[0]
 
-            for output in output_list[indices[0]:indices[1]]:
-                output_string += f"- {output}\n"
-            collection_embed.add_field(name="Pokemon:",
-                                       value=output_string if output_string != "" else "You don't have any Pokemon!")
-            await ctx.send(embed=collection_embed)
-            return
-    await ctx.send("You are not registered to collect!")
+    indices = pokemon.getIndices(total_page_nums, page_num)
+
+    collection_embed.set_footer(text=f"Viewing page {page_num} of {total_page_nums}.")
+
+    for output in output_list[indices[0]:indices[1]]:
+        output_string += f"- {output}\n"
+    collection_embed.add_field(name="Pokemon:",
+                               value=output_string if output_string != "" else "You don't have any Pokemon!")
+    await ctx.send(embed=collection_embed)
+    return
 
 
 @client.command()
@@ -319,7 +331,7 @@ async def drop(ctx):
 '''
 
 
-@client.command()
+@client.command()  # NEEDS TO BE FIXED FOR SQL
 async def activate(ctx):
     if ctx.message.author.id != 229248090786365443:
         await ctx.reply("You are not authorized to use this command!")
@@ -350,7 +362,7 @@ async def activate(ctx):
 
 async def drop_loop(instance):
     await client.wait_until_ready()
-    print(instance)
+    # print(instance)
     while True:
 
         channel = client.get_channel(instance.id)
@@ -371,7 +383,7 @@ async def drop_loop(instance):
         embed.set_image(url="attachment://image.png")
         embed.set_footer(text="'p!redeem <pokemon-name>' to redeem!")
 
-        wait_time = random.randint(300, 600)
+        wait_time = random.randint(300, 1200)
 
         print(f"Dropped {poke} in '{instance.name}' in '{instance.server}'. Waiting for {wait_time} seconds.")
         instance.drop_active = True
@@ -381,28 +393,41 @@ async def drop_loop(instance):
         await asyncio.sleep(wait_time)
 
 
-@client.command()
+@client.command()  # FIXED COLLECTOR PORTION FOR SQL, NEED TO FIX CHANNEL PORTION
 async def redeem(ctx, arg):
     channel_id = ctx.channel.id
     drop_channel = Channel.instance_dict[channel_id]
     poke = drop_channel.drop_pokemon.lower()
-    if drop_channel.drop_active and arg.lower() == poke:
-        for instance in Collector.instances:
-            if instance.id == ctx.message.author.id:
-                instance.pokemon_list.append(poke)
-                instance.unique_list.append(poke) if str(
-                    poke) not in instance.unique_list else instance.dupe_list.append(poke)
 
-                fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
-                pickle.dump(instance, fileObject)
-                fileObject.close()
-                drop_channel.drop_active = False
-                drop_channel.drop_pokemon = None
-                await ctx.reply(f"Redeemed {poke.capitalize()}!")
-                return
+    try:
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not a registered collector!")
+        return
+
+    if drop_channel.drop_active and arg.lower() == poke:
+        collector.pokemon_list.append(poke)
+        collector.unique_list.append(poke) if str(
+            poke) not in collector.unique_list else collector.dupe_list.append(poke)
+
+        # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
+        # pickle.dump(instance, fileObject)
+        # fileObject.close()
+
+        pickle_string = pickle.dumps(collector)
+
+        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+        conn.commit()
+
+        drop_channel.drop_active = False
+        drop_channel.drop_pokemon = None
+        await ctx.reply(f"Redeemed {poke.capitalize()}!")
+        return
     else:
         return
-    await ctx.reply("You are not registered to collect!")
 
 
 @client.command()

@@ -24,6 +24,7 @@ cur = conn.cursor()
 
 # cur.execute("ALTER TABLE Collectors ADD COLUMN id varchar;")
 # cur.execute("ALTER TABLE Collectors DROP  name")
+# this is a comment
 
 # cur.execute("DELETE FROM Collectors WHERE id is NULL")
 
