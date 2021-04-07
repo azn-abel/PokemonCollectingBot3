@@ -319,7 +319,7 @@ async def drop(ctx):
 '''
 
 
-@client.command()
+@client.command()  # NEEDS TO BE FIXED FOR SQL
 async def activate(ctx):
     if ctx.message.author.id != 229248090786365443:
         await ctx.reply("You are not authorized to use this command!")
@@ -350,7 +350,7 @@ async def activate(ctx):
 
 async def drop_loop(instance):
     await client.wait_until_ready()
-    print(instance)
+    # print(instance)
     while True:
 
         channel = client.get_channel(instance.id)
@@ -371,17 +371,15 @@ async def drop_loop(instance):
         embed.set_image(url="attachment://image.png")
         embed.set_footer(text="'p!redeem <pokemon-name>' to redeem!")
 
-        wait_time = random.randint(300, 600)
-
         print(f"Dropped {poke} in '{instance.name}' in '{instance.server}'. Waiting for {wait_time} seconds.")
         instance.drop_active = True
         instance.drop_pokemon = poke.lower()
         await channel.send(file=temp_file, embed=embed)
         # await ctx.send(channel=channel, embed=embed)
-        await asyncio.sleep(wait_time)
+        await asyncio.sleep(random.randint(300, 1200))
 
 
-@client.command()
+@client.command()  # FIXED COLLECTOR PORTION FOR SQL, NEED TO FIX CHANNEL PORTION
 async def redeem(ctx, arg):
     channel_id = ctx.channel.id
     drop_channel = Channel.instance_dict[channel_id]
