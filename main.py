@@ -243,8 +243,17 @@ async def roll(ctx):
 
 @client.command()
 async def view(ctx, pokemon):
-    if ctx.message.author.id not in Collector.instances_dict:
-        await ctx.reply("You are not a registered collector!")
+    try:
+        # collector = Collector.instances_dict[collector_id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not registered to collect!")
+        return
+
+    if pokemon.lower() not in collector.pokemon_list:
+        await ctx.reply("You do not own this Pokemon!")
         return
 
     try:
@@ -255,10 +264,6 @@ async def view(ctx, pokemon):
         except:
             await ctx.reply("That is not a valid Pokemon!")
             return
-
-    if pokemon.lower() not in Collector.instances_dict[ctx.message.author.id].pokemon_list:
-        await ctx.reply("You do not own this Pokemon!")
-        return
 
     embed = discord.Embed(
         title="Viewing Pokemon"
