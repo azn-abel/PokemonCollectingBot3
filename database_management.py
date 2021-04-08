@@ -11,16 +11,16 @@ import psycopg2.extras
 
 from collecting import Collector
 
+# Opening the connection
+conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+cur = conn.cursor()
+
 # for filename in os.listdir('Collector Data'):
 #     file = open(f'Collector Data/{filename}', 'rb')
 #     instance = pickle.load(file)
 #     Collector.instances.append(instance)
 #     Collector.instances_dict[instance.id] = instance
 #     file.close()
-
-# Opening the connection
-conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
-cur = conn.cursor()
 
 # cur.execute("ALTER TABLE Collectors ADD COLUMN id varchar;")
 # cur.execute("ALTER TABLE Collectors DROP  name")
