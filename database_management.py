@@ -15,8 +15,6 @@ DB_NAME = os.getenv('DATABASE_URL')[139:]
 DB_USER = os.getenv('DATABASE_URL')[11:25]
 DB_PASS = os.getenv('DATABASE_URL')[26:90]
 
-URI = "postgres://hoozxstnmlnsze:7be678bf6a9666226e6c23d17d72f5155f3a79ad41ed1f0ee5e464006d1c0861@ec2-54-167-152-185.compute-1.amazonaws.com:5432/d3vn5oiendgavl"
-
 import os
 import pickle
 
