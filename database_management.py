@@ -20,8 +20,6 @@ from collecting import Collector
 conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 cur = conn.cursor()
 
-cur.execute("SELECT * FROM collectors")
-print(cur.fetchall())
 # for filename in os.listdir('Collector Data'):
 #     file = open(f'Collector Data/{filename}', 'rb')
 #     instance = pickle.load(file)
