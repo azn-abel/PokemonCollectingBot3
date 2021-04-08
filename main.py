@@ -10,7 +10,10 @@ from collecting import Collector, Channel
 import pokemon
 from database_management import *
 
-TOKEN = 'ODI0MDIwMzY4MjA1MTUyMjY2.YFpSxQ.if6CF7cGJYifIXkW8lWppE03Zi0'
+if os.getenv('PYCHARM_HOSTED'):
+    from environment import *
+
+TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
 client = commands.Bot(command_prefix=['p!', 'P!'], intents=intents)
 
