@@ -1,12 +1,5 @@
 import os
-# DB_HOST = "ec2-3-234-85-177.compute-1.amazonaws.com"
-# DB_NAME = "dfjg963os4vl05"
-# DB_USER = "onpjrutnbqtplm"
-# DB_PASS = "b3f55b9e0432525eba53bc054b4d05998324a697ac7ccf983001f99aed634400"
-# DB_HOST = "ec2-54-167-152-185.compute-1.amazonaws.com"
-# DB_NAME = "d3vn5oiendgavl"
-# DB_USER = "hoozxstnmlnsze"
-# DB_PASS = "7be678bf6a9666226e6c23d17d72f5155f3a79ad41ed1f0ee5e464006d1c0861"
+
 if os.getenv('PYCHARM_HOSTED'):
     from environment import *
 
