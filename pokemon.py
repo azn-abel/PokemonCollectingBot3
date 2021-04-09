@@ -6,7 +6,7 @@ types = list(counts)
 types.sort()
 all_pokemon = list(data['Name'])
 
-PER_PAGE = 5
+PER_PAGE = 15
 
 def getPageNums(lst):
     total_page_nums = len(lst) // PER_PAGE if len(lst) % PER_PAGE == 0 else len(lst) // PER_PAGE + 1
