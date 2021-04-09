@@ -441,7 +441,7 @@ async def redeem(ctx, arg):
 @client.command()
 async def ping(ctx):
     await ctx.send("pong!")
-    await ctx.send(str(os.environ))
+    await ctx.send(f"```\n{os.environ}\n```")
 
 
 @client.command(name='69')
