@@ -255,10 +255,6 @@ async def view(ctx, pokemon):
         await ctx.reply("You are not registered to collect!")
         return
 
-    if pokemon.lower() not in collector.pokemon_list:
-        await ctx.reply("You do not own this Pokemon!")
-        return
-
     try:
         temp_file = discord.File(f"Pokemon/images/{pokemon.lower()}.png", filename="image.png")
     except:
@@ -267,6 +263,10 @@ async def view(ctx, pokemon):
         except:
             await ctx.reply("That is not a valid Pokemon!")
             return
+
+    if pokemon.lower() not in collector.pokemon_list:
+        await ctx.reply("You do not own this Pokemon!")
+        return
 
     embed = discord.Embed(
         title="Viewing Pokemon"
