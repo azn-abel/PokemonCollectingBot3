@@ -3,6 +3,7 @@ from bot import *
 from database_management import *
 import pokemon
 import random
+import pickle
 
 
 @client.command(aliases=['collection', 'col'])
