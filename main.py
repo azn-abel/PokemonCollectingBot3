@@ -10,7 +10,14 @@ from collecting import Collector, Channel
 import pokemon
 from database_management import *
 
+VIEWING_ENABLED = True
+COLLECTING_ENABLED = True
 
+if VIEWING_ENABLED:
+    from viewing import *
+
+if COLLECTING_ENABLED:
+    from collecting import *
 
 '''
 @client.command()
