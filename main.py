@@ -19,6 +19,9 @@ client = commands.Bot(command_prefix=['p!', 'P!'], intents=intents)
 
 special_privileges = [229248090786365443]
 
+@client.event
+async def on_ready():
+    await client.change_presence(activity=discord.Game(name="Pokémon Emerald Version"))
 
 @client.command()  # FIXED FOR SQL
 async def register(ctx):
