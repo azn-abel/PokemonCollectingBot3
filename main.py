@@ -438,8 +438,10 @@ async def redeem(ctx, arg):
 
 
 async def change_statuses(status_list, mins_to_sleep):
+    await client.wait_until_ready()
     while True:
         game_name = random.choice(status_list)
+        print("changed", game_name)
         await client.change_presence(activity=discord.Game(name=game_name))
         await asyncio.sleep(mins_to_sleep * 60)
 
