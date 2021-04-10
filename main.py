@@ -441,6 +441,13 @@ async def redeem(ctx, arg):
         return
 
 
+async def change_statuses(status_list, mins_to_sleep):
+    while True:
+        game_name = random.choice(status_list)
+        await client.change_presence(activity=discord.Game(name=game_name))
+        await asyncio.sleep(mins_to_sleep * 60)
+
+
 @client.command()
 async def ping(ctx):
     await ctx.send("pong!")
@@ -481,4 +488,5 @@ for instance in Channel.instances:
     if instance.drops_enabled:
         client.loop.create_task(drop_loop(instance))
 
+client.loop.create_task(change_statuses(pokemon.games_list, 30))
 client.run(TOKEN)
