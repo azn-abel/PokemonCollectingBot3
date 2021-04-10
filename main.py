@@ -6,7 +6,6 @@ import asyncio
 import random
 import pandas as pd
 
-from collecting import Collector, Channel
 import pokemon
 from database_management import *
 
