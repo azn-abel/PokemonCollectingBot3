@@ -181,13 +181,6 @@ for filename in os.listdir('Channel Data'):
     Channel.instance_dict[instance.id] = instance
     file.close()
 
-print(Collector.instances)
-for instance in Collector.instances:
-    print(instance.id)
-    print(f"All: {instance.pokemon_list}")
-    print(f"Unique: {instance.unique_list}")
-    print(f"Dupes: {instance.dupe_list}")
-
 for instance in Channel.instances:
     if instance.drops_enabled:
         client.loop.create_task(drop_loop(instance))
