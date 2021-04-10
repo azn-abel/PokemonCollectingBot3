@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+from bot import *
+
 import pickle
 import os
 import asyncio
@@ -9,15 +9,6 @@ import pandas as pd
 from collecting import Collector, Channel
 import pokemon
 from database_management import *
-
-if os.getenv('PYCHARM_HOSTED'):
-    from environment import *
-
-TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-client = commands.Bot(command_prefix=['p!', 'P!'], intents=intents)
-
-special_privileges = [229248090786365443]
 
 @client.command()  # FIXED FOR SQL
 async def register(ctx):

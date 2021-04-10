@@ -1,3 +1,6 @@
+from bot import *
+
+
 class Collector:
     instances = []
     instances_dict = {}
