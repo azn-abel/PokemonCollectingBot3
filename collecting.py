@@ -224,8 +224,6 @@ async def reset_dailies():
             await asyncio.sleep(60)
 
 
-
-
 @client.command()  # FIXED COLLECTOR PORTION FOR SQL, NEED TO FIX CHANNEL PORTION
 async def redeem(ctx, arg):
     channel_id = ctx.channel.id
@@ -266,3 +264,46 @@ async def redeem(ctx, arg):
         return
     else:
         return
+
+@client.command()
+async def buy(ctx):
+    try:
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not a registered collector!")
+        return
+
+    if collector.poke_points < 1000:
+        await ctx.reply("You need 1000 PP to buy a Pokemon!")
+        return
+
+    poke = random.choice(pokemon.all_pokemon)
+    collector.pokemon_list.append(poke)
+    collector.unique_list.append(poke) if str(
+        poke) not in collector.unique_list else collector.dupe_list.append(poke)
+    collector.daily_redeemed = True
+    collector.poke_points -= 1000
+
+    pickle_string = pickle.dumps(collector)
+
+    cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+    conn.commit()
+
+    try:
+        temp_file = discord.File(f"Pokemon/images/{poke}.png", filename="image.png")
+    except:
+        temp_file = discord.File(f"Pokemon/images/{poke}.jpg", filename="image.png")
+
+    embed = discord.Embed(
+        title="Bought Pokemon!"
+    )
+
+    embed.set_image(url="attachment://image.png")
+    embed.add_field(name=f"{pokemon.data.loc[pokemon.data['Name'] == poke, 'Type1'].iloc[0]}",
+                    value=poke.capitalize())
+    embed.set_footer(text=f"You spent 1000 PP!")
+
+    await ctx.reply(file=temp_file, embed=embed)
