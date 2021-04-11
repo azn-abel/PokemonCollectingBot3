@@ -84,5 +84,6 @@ for instance in Channel.instances:
     if instance.drops_enabled:
         client.loop.create_task(drop_loop(instance))
 
+client.loop.create_task(reset_dailies())
 client.loop.create_task(change_statuses(pokemon.games_list, 30))
 client.run(TOKEN)

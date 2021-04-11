@@ -3,6 +3,8 @@ from bot import *
 import pickle
 import random
 import asyncio
+from datetime import datetime
+
 from database_management import conn, cur
 import pokemon
 
@@ -156,6 +158,23 @@ async def drop_loop(instance):
         await channel.send(file=temp_file, embed=embed)
         # await ctx.send(channel=channel, embed=embed)
         await asyncio.sleep(wait_time)
+
+
+async def reset_dailies():
+    while True:
+        if datetime.now().strftime("%H") == "00":
+            cur.execute("SELECT * FROM collectors")
+            for x in cur.fetchall():
+                collector = pickle.loads(x[1])
+                collector.daily_redeemed = False
+                print(collector.id, collector.daily_redeemed)
+                cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], pickle.dumps(collector),))
+            conn.commit()
+            await asyncio.sleep(60*60*60*24)
+        else:
+            await asyncio.sleep(60)
+
+
 
 
 @client.command()  # FIXED COLLECTOR PORTION FOR SQL, NEED TO FIX CHANNEL PORTION
