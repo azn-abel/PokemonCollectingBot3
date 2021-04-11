@@ -216,7 +216,7 @@ async def stats(ctx):
     )
     embed.set_thumbnail(url=ctx.message.author.avatar_url)
     embed.set_footer(text="Use command p!collection to view a full list")
-    embed.add_field(name="User", value=f"{ctx.message.author.mention}", inline=False)
+    embed.add_field(name="User", value=f"{ctx.message.author.mention}", inline=True)
     embed.add_field(name="PP:", value=f"{collector.poke_points}", inline=True)
     embed.add_field(name="Collection:", value='** **', inline=False)
 
