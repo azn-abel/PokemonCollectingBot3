@@ -21,6 +21,7 @@ class Collector:
         self.unique_list = []
         self.dupe_list = []
         self.poke_points = 0
+        self.daily_redeemed = False
 
 
 class Channel:
@@ -35,6 +36,7 @@ class Channel:
         self.server = server
         self.drops_enabled = True
         self.drop_active = False
+        self.drop_pokemon = None
         # print(self.__class__.instances)
         # print(self.__class__.instance_dict)
 
@@ -60,6 +62,51 @@ async def register(ctx):
     print(y.id)
     print(y)
     '''
+
+
+@client.command()
+async def daily(ctx):
+    try:
+        # collector = Collector.instances_dict[ctx.message.author.id]
+        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = cur.fetchone()[1]
+        collector = pickle.loads(retrieved_pickle)
+    except:
+        await ctx.reply("You are not a registered collector!")
+        return
+
+    if collector.daily_redeemed:
+        await ctx.reply("You have already redeemed your daily for today!")
+        return
+
+    poke = random.choice(pokemon.all_pokemon)
+    collector.pokemon_list.append(poke)
+    collector.unique_list.append(poke) if str(
+        poke) not in collector.unique_list else collector.dupe_list.append(poke)
+    collector.daily_redeemed = True
+    collector.poke_points += 500
+
+    pickle_string = pickle.dumps(collector)
+
+    cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+    conn.commit()
+
+    try:
+        temp_file = discord.File(f"Pokemon/images/{poke}.png", filename="image.png")
+    except:
+        temp_file = discord.File(f"Pokemon/images/{poke}.jpg", filename="image.png")
+
+    embed = discord.Embed(
+        title="Daily Pokemon Redeemed!"
+    )
+
+    embed.set_image(url="attachment://image.png")
+    embed.add_field(name=f"{pokemon.data.loc[pokemon.data['Name'] == poke, 'Type1'].iloc[0]}",
+                    value=poke.capitalize())
+    embed.set_footer(text=f"You gained 500 PP!")
+
+    await ctx.reply(file=temp_file, embed=embed)
+
 
 @client.command()  # FIXED FOR SQL, NEEDS TESTING
 async def get(ctx, arg):
@@ -162,14 +209,16 @@ async def drop_loop(instance):
 
 async def reset_dailies():
     while True:
-        if datetime.now().strftime("%H") == "00":
+        if datetime.now().strftime("%H") == "10":
             cur.execute("SELECT * FROM collectors")
             for x in cur.fetchall():
                 collector = pickle.loads(x[1])
                 collector.daily_redeemed = False
                 print(collector.id, collector.daily_redeemed)
-                cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], pickle.dumps(collector),))
-            conn.commit()
+                cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle.dumps(collector), x[0]))
+
+                #cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], pickle.dumps(collector),))
+                conn.commit()
             await asyncio.sleep(60*60*60*24)
         else:
             await asyncio.sleep(60)

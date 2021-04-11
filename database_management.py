@@ -18,6 +18,22 @@ import psycopg2.extras
 conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 cur = conn.cursor()
 
+
+# output_list = []
+# for row in cur.fetchall():
+#     if row not in output_list:
+#         output_list.append(row)
+# print(output_list)
+# cur.execute("DELETE FROM collectors WHERE id != %s", ("pee",))
+# for x in output_list:
+#     cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], x[1],))
+# conn.commit()
+
+
+#     unique_id = row[0]
+#     memory = row[1]
+#     cur.execute("DELETE FROM collectors WHERE id = %s AND instance != %s", (unique_id, memory))
+# conn.commit()
 # for filename in os.listdir('Collector Data'):
 #     file = open(f'Collector Data/{filename}', 'rb')
 #     instance = pickle.load(file)
