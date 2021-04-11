@@ -181,6 +181,7 @@ async def redeem(ctx, arg):
         collector.pokemon_list.append(poke)
         collector.unique_list.append(poke) if str(
             poke) not in collector.unique_list else collector.dupe_list.append(poke)
+        collector.poke_points += 100
 
         # fileObject = open(f'Collector Data/{instance.id}.pickle', 'wb')
         # pickle.dump(instance, fileObject)
@@ -193,7 +194,7 @@ async def redeem(ctx, arg):
 
         drop_channel.drop_active = False
         drop_channel.drop_pokemon = None
-        await ctx.reply(f"Redeemed {poke.capitalize()}!")
+        await ctx.reply(f"Redeemed {poke.capitalize()}! You gained 100 PokePoints!")
         return
     else:
         return
