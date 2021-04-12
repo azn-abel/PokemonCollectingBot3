@@ -3,8 +3,8 @@ import os
 if os.getenv('PYCHARM_HOSTED'):
     from environment import *
 
-DB_HOST = os.getenv('DATABASE_URL')[91:133]
-DB_NAME = os.getenv('DATABASE_URL')[139:]
+DB_HOST = os.getenv('DATABASE_URL')[91:132]
+DB_NAME = os.getenv('DATABASE_URL')[138:]
 DB_USER = os.getenv('DATABASE_URL')[11:25]
 DB_PASS = os.getenv('DATABASE_URL')[26:90]
 
