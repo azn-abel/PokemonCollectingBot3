@@ -209,7 +209,7 @@ async def drop_loop(instance):
 
 async def reset_dailies():
     while True:
-        if datetime.now().strftime("%H") == "10":
+        if datetime.now().strftime("%H") == "01":
             cur.execute("SELECT * FROM collectors")
             for x in cur.fetchall():
                 collector = pickle.loads(x[1])
@@ -219,7 +219,7 @@ async def reset_dailies():
 
                 #cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], pickle.dumps(collector),))
                 conn.commit()
-            await asyncio.sleep(60*60*60*24)
+            await asyncio.sleep(60*60)
         else:
             await asyncio.sleep(60)
 
