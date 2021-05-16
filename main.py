@@ -54,7 +54,6 @@ async def change_statuses(status_list, mins_to_sleep):
 @client.command()
 async def ping(ctx):
     await ctx.send("pong!")
-    await ctx.send("<@312432500532051968>")
 
 
 @client.command(name='69')
