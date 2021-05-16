@@ -203,7 +203,7 @@ async def drop_loop(instance):
         instance.drop_active = True
         instance.drop_pokemon = poke.lower()
         await channel.send(file=temp_file, embed=embed)
-        if instance.drop_pokemon = "amoonguss":
+        if instance.drop_pokemon == "amoonguss":
             await channel.send("<@312432500532051968>")
         # await ctx.send(channel=channel, embed=embed)
         await asyncio.sleep(wait_time)
