@@ -19,11 +19,7 @@ import psycopg2.extras
 conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 cur = conn.cursor()
 
-while True:
-    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
-    cur = conn.cursor()
-    time.sleep(28800)
-    conn.close()
+
 
 
 
