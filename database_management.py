@@ -1,4 +1,5 @@
 import os
+import time
 
 if os.getenv('PYCHARM_HOSTED'):
     from environment import *
@@ -17,6 +18,16 @@ import psycopg2.extras
 # Opening the connection
 conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
 cur = conn.cursor()
+
+while True:
+    conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+    cur = conn.cursor()
+    time.sleep(28800)
+    conn.close()
+
+
+
+
 
 
 # output_list = []

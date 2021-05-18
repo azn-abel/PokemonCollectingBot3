@@ -219,7 +219,6 @@ async def reset_dailies():
                 print(collector.id, collector.daily_redeemed)
                 cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle.dumps(collector), x[0]))
 
-                #cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (x[0], pickle.dumps(collector),))
                 conn.commit()
             await asyncio.sleep(60*60)
         else:
