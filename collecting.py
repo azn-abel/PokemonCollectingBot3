@@ -5,7 +5,7 @@ import random
 import asyncio
 from datetime import datetime
 
-from database_management import conn, cur
+import database_management as dm
 import pokemon
 
 
@@ -43,6 +43,7 @@ class Channel:
 
 @client.command()  # FIXED FOR SQL
 async def register(ctx):
+    dm.cursor_check(dm.cur)
     author_id = ctx.message.author.id
     for x in Collector.instances:
         if author_id == x.id:
@@ -53,8 +54,8 @@ async def register(ctx):
     # pickle.dump(x, fileObject)
     # fileObject.close()
     pickle_string = pickle.dumps(x)
-    cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (str(author_id), pickle_string,))
-    conn.commit()
+    dm.cur.execute("INSERT INTO Collectors (id, instance) VALUES(%s, %s)", (str(author_id), pickle_string,))
+    dm.conn.commit()
 
     await ctx.reply("You are now registered to collect!")
     '''
@@ -66,10 +67,11 @@ async def register(ctx):
 
 @client.command()
 async def daily(ctx):
+    dm.cursor_check(dm.cur)
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
@@ -88,8 +90,8 @@ async def daily(ctx):
 
     pickle_string = pickle.dumps(collector)
 
-    cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
-    conn.commit()
+    dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+    dm.conn.commit()
 
     try:
         temp_file = discord.File(f"Pokemon/images/{poke}.png", filename="image.png")
@@ -116,8 +118,8 @@ async def get(ctx, arg):
 
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
@@ -136,8 +138,8 @@ async def get(ctx, arg):
         print(len(collector.unique_list))
         pickle_string = pickle.dumps(collector)
 
-        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
-        conn.commit()
+        dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+        dm.conn.commit()
         await ctx.reply(f"You have acquired {poke.capitalize()}!")
         return
     else:
@@ -179,6 +181,11 @@ async def drop_loop(instance):
     # print(instance)
     while True:
 
+        try:
+            await instance.drop_message.delete()
+        except:
+            pass
+
         channel = client.get_channel(instance.id)
         embed = discord.Embed(
             title="Pokemon Drop!",
@@ -202,7 +209,7 @@ async def drop_loop(instance):
         print(f"Dropped {poke} in '{instance.name}' in '{instance.server}'. Waiting for {wait_time} seconds.")
         instance.drop_active = True
         instance.drop_pokemon = poke.lower()
-        await channel.send(file=temp_file, embed=embed)
+        instance.drop_message = await channel.send(file=temp_file, embed=embed)
         if instance.drop_pokemon == "amoonguss":
             await channel.send("<@312432500532051968>")
         # await ctx.send(channel=channel, embed=embed)
@@ -210,36 +217,45 @@ async def drop_loop(instance):
 
 
 async def reset_dailies():
+    today = datetime.date(datetime.today())
+    dm.cur.execute("SELECT * FROM collectors")
+    for x in dm.cur.fetchall():
+        collector = pickle.loads(x[1])
+        collector.daily_redeemed = False
+        print(collector.id, collector.daily_redeemed)
+        dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle.dumps(collector), x[0]))
+
+        dm.conn.commit()
     while True:
-        if datetime.now().strftime("%H") == "01":
-            cur.execute("SELECT * FROM collectors")
-            for x in cur.fetchall():
+        if datetime.date(datetime.today()) != today:
+            today = datetime.today()
+            dm.cur.execute("SELECT * FROM collectors")
+            for x in dm.cur.fetchall():
                 collector = pickle.loads(x[1])
                 collector.daily_redeemed = False
                 print(collector.id, collector.daily_redeemed)
-                cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle.dumps(collector), x[0]))
+                dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle.dumps(collector), x[0]))
 
-                conn.commit()
-            await asyncio.sleep(60*60)
+                dm.conn.commit()
+            await asyncio.sleep(60 * 60)
         else:
             await asyncio.sleep(60)
 
 
 @client.command()  # FIXED COLLECTOR PORTION FOR SQL, NEED TO FIX CHANNEL PORTION
 async def redeem(ctx, arg):
+    dm.cursor_check(dm.cur)
     channel_id = ctx.channel.id
     drop_channel = Channel.instance_dict[channel_id]
     poke = drop_channel.drop_pokemon.lower()
 
     # try:
-        # collector = Collector.instances_dict[ctx.message.author.id]
-    print("got here")
-    print(ctx.message.author.id)
-    cur.execute("SELECT * FROM collectors WHERE id = %s", (f'{ctx.message.author.id}',))
-    retrieved_pickle = cur.fetchone()[1]
+    # collector = Collector.instances_dict[ctx.message.author.id]
+
+    dm.cur.execute("SELECT * FROM collectors WHERE id = %s", (f'{ctx.message.author.id}',))
+    retrieved_pickle = dm.cur.fetchone()[1]
     collector = pickle.loads(retrieved_pickle)
-    print(retrieved_pickle)
-    print(collector)
+
     # except:
     #     await ctx.reply("You are not a registered collector!")
     #     return
@@ -256,8 +272,8 @@ async def redeem(ctx, arg):
 
         pickle_string = pickle.dumps(collector)
 
-        cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
-        conn.commit()
+        dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+        dm.conn.commit()
 
         drop_channel.drop_active = False
         drop_channel.drop_pokemon = None
@@ -266,12 +282,15 @@ async def redeem(ctx, arg):
     else:
         return
 
+
 @client.command()
 async def buy(ctx):
+    dm.cursor_check(dm.cur)
+
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")
@@ -290,8 +309,8 @@ async def buy(ctx):
 
     pickle_string = pickle.dumps(collector)
 
-    cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
-    conn.commit()
+    dm.cur.execute("UPDATE collectors SET instance = %s WHERE id = %s", (pickle_string, str(collector.id)))
+    dm.conn.commit()
 
     try:
         temp_file = discord.File(f"Pokemon/images/{poke}.png", filename="image.png")

@@ -1,6 +1,6 @@
 from bot import *
 
-from database_management import *
+import database_management as dm
 import pokemon
 import random
 import pickle
@@ -8,6 +8,7 @@ import pickle
 
 @client.command(aliases=['collection', 'col'])
 async def _collection(ctx, *args):
+    dm.cursor_check(dm.cur)
     author = ctx.message.author
     pfp = author.avatar_url
     output_list = []
@@ -20,8 +21,8 @@ async def _collection(ctx, *args):
     collector_id = ctx.message.author.id
     try:
         # collector = Collector.instances_dict[collector_id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
@@ -55,6 +56,7 @@ async def _collection(ctx, *args):
 
 @client.command()
 async def dupes(ctx, *args):
+    dm.cursor_check(dm.cur)
     author = ctx.message.author
     pfp = author.avatar_url
     output_list = []
@@ -67,8 +69,8 @@ async def dupes(ctx, *args):
     collector_id = ctx.message.author.id
     try:
         # collector = Collector.instances_dict[collector_id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
@@ -102,6 +104,7 @@ async def dupes(ctx, *args):
 
 @client.command()
 async def unique(ctx, *args):
+    dm.cursor_check(dm.cur)
     author = ctx.message.author
     pfp = author.avatar_url
     output_list = []
@@ -113,8 +116,8 @@ async def unique(ctx, *args):
     collector_id = ctx.message.author.id
     try:
         # collector = Collector.instances_dict[collector_id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(collector_id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
@@ -148,6 +151,7 @@ async def unique(ctx, *args):
 
 @client.command()
 async def roll(ctx):
+    dm.cursor_check(dm.cur)
     embed = discord.Embed(
         title="Rolled Pokemon"
     )
@@ -167,10 +171,11 @@ async def roll(ctx):
 
 @client.command()
 async def view(ctx, pokemon):
+    dm.cursor_check(dm.cur)
     try:
         # collector = Collector.instances_dict[collector_id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not registered to collect!")
@@ -201,11 +206,12 @@ async def view(ctx, pokemon):
 
 @client.command()
 async def stats(ctx):
+    dm.cursor_check(dm.cur)
     author = str(ctx.message.author)
     try:
         # collector = Collector.instances_dict[ctx.message.author.id]
-        cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
-        retrieved_pickle = cur.fetchone()[1]
+        dm.cur.execute("SELECT * FROM collectors WHERE id = %s;", (str(ctx.message.author.id),))
+        retrieved_pickle = dm.cur.fetchone()[1]
         collector = pickle.loads(retrieved_pickle)
     except:
         await ctx.reply("You are not a registered collector!")

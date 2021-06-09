@@ -20,6 +20,18 @@ conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_
 cur = conn.cursor()
 
 
+def cursor_check(cursor):
+    global cur
+    global conn
+    try:
+        cursor.execute("SELECT * FROM Collectors")
+        print("Cursor check succeeded.")
+    except:
+        conn = psycopg2.connect(dbname=DB_NAME, user=DB_USER, password=DB_PASS, host=DB_HOST)
+        cur = conn.cursor()
+        print("Cursor check failed. Refreshing cursor.")
+
+
 
 
 

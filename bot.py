@@ -7,6 +7,6 @@ if os.getenv('PYCHARM_HOSTED'):
 
 TOKEN = os.getenv('DISCORD_BOT_TOKEN')
 intents = discord.Intents(messages=True, guilds=True, reactions=True, members=True, presences=True)
-client = commands.Bot(command_prefix=['p!', 'P!'], intents=intents)
+client = commands.Bot(command_prefix=['p!', 'P!', 'pee!'], intents=intents)
 
 special_privileges = [229248090786365443]
