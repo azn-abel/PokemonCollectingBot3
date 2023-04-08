@@ -5,7 +5,7 @@ Users may choose one of a few ways to obtain Pokemon: ```p!daily```, ```p!buy```
 
 ```p!daily``` may be used once daily, granting users 1 free Pokemon and 500 PP (currency):
 
-<img src="https://user-images.githubusercontent.com/66392457/230696324-738f698e-f04a-4d39-bd53-08256fa5d348.png" height="200" />
+<img src="https://user-images.githubusercontent.com/66392457/230696324-738f698e-f04a-4d39-bd53-08256fa5d348.png" height="400" />
 ![daily](https://user-images.githubusercontent.com/66392457/230696324-738f698e-f04a-4d39-bd53-08256fa5d348.png)
 
 ```p!buy``` allows users to spend 1000PP to buy one Pokemon:
