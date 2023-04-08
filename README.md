@@ -16,6 +16,9 @@ Obtaining Pokemon this way requires quick reaction, because others are looking t
 
 <img src="https://user-images.githubusercontent.com/66392457/230696455-30973476-5213-449e-b77a-2ad8932945ed.png" height="400" />
 
+Users can view their collection stats using ```p!stats```:
+
+<img src="https://user-images.githubusercontent.com/66392457/230696712-37b781fc-7151-4809-be36-71eeefa7aa9c.png" height="400" />
 
 
 
